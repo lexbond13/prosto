@@ -16,7 +16,7 @@ use yii\web\HttpException;
  */
 class Currency extends \yii\db\ActiveRecord
 {
-    const CURRENCY_URL = "http://www.cbr.ru/scrwipts/XML_daily.asp";
+    const CURRENCY_URL = "http://www.cbr.ru/scripts/XML_daily.asp";
 
     /**
      * {@inheritdoc}
