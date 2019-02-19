@@ -12,7 +12,7 @@ use yii\web\HttpException;
  *
  * @property int $id
  * @property string $name
- * @property int $rate
+ * @property string $rate
  */
 class Currency extends \yii\db\ActiveRecord
 {
@@ -32,7 +32,8 @@ class Currency extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'rate'], 'string', 'max' => 255],
+            [['name'], 'string', 'max' => 255],
+            [['rate'], 'number'],
         ];
     }
 
@@ -78,24 +79,24 @@ class Currency extends \yii\db\ActiveRecord
 
             $currencies_from_db = $this->getCurrenciesFromDb();
 
-            foreach ($currency_data  as $item) {
+            foreach ($currency_data as $item) {
 
                 $key = strval($item->Name);
 
                 if(array_key_exists($key, $currencies_from_db)) {
                     $model = $currencies_from_db[$key];
-                    $rate = $this->getDecimalRate($item->Value);
+                    $rate = $this->toDecimal($item->Value);
                     if($model->rate!=$rate) {
                         $model->rate = $rate;
-                        $model->save(false);
+                        $model->save();
                         $updated++;
                     }
 
                 } else {
                     $model = new self();
-                    $model->name = $item->Name;
-                    $model->rate = $this->getDecimalRate($item->Value);
-                    $model->save(false);
+                    $model->name = $this->toString($item->Name);
+                    $model->rate = $this->toDecimal($item->Value);
+                    $model->save();
                     $added++;
                 }
             }
@@ -109,9 +110,14 @@ class Currency extends \yii\db\ActiveRecord
      * @param $val
      * @return mixed
      */
-    private function getDecimalRate($val)
+    private function toDecimal($val)
     {
-        return str_replace(",",".", $val);
+        return floatval($val);
+    }
+
+    private function toString($val)
+    {
+        return strval($val);
     }
 
     /**
@@ -123,5 +129,4 @@ class Currency extends \yii\db\ActiveRecord
             ->indexBy('name')
             ->all();
     }
-    
 }
